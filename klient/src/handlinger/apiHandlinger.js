@@ -11,7 +11,7 @@ export function hentNedbetalingsplan(payload) {
   return axios
     .post("api/laan/nedbetalingsplan", payload)
     .then(res => {
-      return res.data.innbetalinger;
+      return res.data;
     })
     .catch(err => {
       return err.response.data;

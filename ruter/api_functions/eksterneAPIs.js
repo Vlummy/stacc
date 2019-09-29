@@ -26,7 +26,7 @@ module.exports = {
         payload
       )
       .then(res => {
-        return res.data.nedbetalingsplan;
+        return res.data;
       })
       .catch(err => {
         console.log(err);

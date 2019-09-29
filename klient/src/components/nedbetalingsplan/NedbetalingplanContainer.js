@@ -6,6 +6,10 @@ import { mapNedbetalingsplanÅr } from "../../utility/utilityFunctions";
 import "./style.css";
 import NedbetalingsÅr from "./NedbetalingsÅr";
 
+/**
+ * Container komponent for alle sub komponenter av en nedbetalingskomponent.
+ * Prosessen for å opprette en plan starter her.
+ */
 class NedbetalingplanContainer extends Component {
   constructor(props) {
     super(props);
@@ -19,8 +23,9 @@ class NedbetalingplanContainer extends Component {
         utlopsDato: "",
         saldoDato: "",
         datoForsteInnbetaling: "",
-        ukjentVerdi: 1
-      }
+        ukjentVerdi: 0
+      },
+      feilmelding: null
     };
 
     this.handleChange = this.handleChange.bind(this);
@@ -97,12 +102,23 @@ class NedbetalingplanContainer extends Component {
     const { data } = this.state;
     hentNedbetalingsplan(data).then(res => {
       console.log(res);
-      this.setState({ nedbetalingsplan: res, unikeÅr: [] }, () => {
-        let unikeÅr = mapNedbetalingsplanÅr(this.state.nedbetalingsplan);
+      const feilmelding = res.valideringsfeilmeldinger;
+      const nedbetalingsplan = res.nedbetalingsplan.innbetalinger;
+      if (feilmelding == null) {
+        this.setState(
+          { nedbetalingsplan: nedbetalingsplan, unikeÅr: [] },
+          () => {
+            let unikeÅr = mapNedbetalingsplanÅr(this.state.nedbetalingsplan);
+            this.setState({
+              unikeÅr: unikeÅr
+            });
+          }
+        );
+      } else {
         this.setState({
-          unikeÅr: unikeÅr
+          feilmelding: feilmelding.feilmelding
         });
-      });
+      }
     });
   }
 
@@ -112,79 +128,88 @@ class NedbetalingplanContainer extends Component {
    * @param {event} e
    */
   handleChange(e) {
-    const { data } = this.state;
-    data[e.target.name] = e.target.value;
-    this.setState({ data: data });
+    if (e.target.value != "") {
+      const { data } = this.state;
+      data[e.target.name] = e.target.value;
+      this.setState({ data: data });
+    }
   }
 
   render() {
-    const { data, unikeÅr, nedbetalingsplan } = this.state;
+    const { data, unikeÅr, nedbetalingsplan, feilmelding } = this.state;
     return (
-      <div className="Container">
-        <div className="NedbetalingsHeader">
-          Lånebeløp
-          <input
-            placeholder="0"
-            type="number"
-            min="0"
-            value={data.laanebelop}
-            name="laanebelop"
-            onChange={this.handleChange}
-          />
-          Nominell rente
-          <input
-            placeholder="0"
-            type="number"
-            min="0"
-            max="20"
-            value={data.nominellRente}
-            name="nominellRente"
-            onChange={this.handleChange}
-          />
-          Termin gebyr
-          <input
-            placeholder="0"
-            type="number"
-            min="0"
-            max="100"
-            value={data.terminGebyr}
-            name="terminGebyr"
-            onChange={this.handleChange}
-          />
-          Lånestart
-          <input
-            type="date"
-            value={data.saldoDato}
-            name="saldoDato"
-            onChange={this.handleChange}
-          />
-          Første forfall
-          <input
-            type="date"
-            value={data.datoForsteInnbetaling}
-            name="datoForsteInnbetaling"
-            onChange={this.handleChange}
-          />
-          Ferdig nedbetalt lån
-          <input
-            type="date"
-            value={data.utlopsDato}
-            name="utlopsDato"
-            onChange={this.handleChange}
-          />
-          <button
-            onClick={() => {
-              this.opprettNedbetalingsplan();
-            }}
-          >
-            Hent nedbetalingsplan
-          </button>
+      <div className="Wrapper">
+        <div className="Container">
+          <div className="NedbetalingsHeader">
+            Lånebeløp
+            <input
+              placeholder="0"
+              type="number"
+              min="0"
+              value={data.laanebelop}
+              name="laanebelop"
+              onChange={this.handleChange}
+            />
+            Nominell rente
+            <input
+              placeholder="0"
+              type="number"
+              min="0"
+              max="20"
+              value={data.nominellRente}
+              name="nominellRente"
+              onChange={this.handleChange}
+            />
+            Termin gebyr
+            <input
+              placeholder="0"
+              type="number"
+              min="0"
+              max="100"
+              value={data.terminGebyr}
+              name="terminGebyr"
+              onChange={this.handleChange}
+            />
+            Lånestart
+            <input
+              type="date"
+              value={data.saldoDato}
+              name="saldoDato"
+              onChange={this.handleChange}
+            />
+            Første forfall
+            <input
+              type="date"
+              value={data.datoForsteInnbetaling}
+              name="datoForsteInnbetaling"
+              onChange={this.handleChange}
+            />
+            Ferdig nedbetalt lån
+            <input
+              type="date"
+              value={data.utlopsDato}
+              name="utlopsDato"
+              onChange={this.handleChange}
+            />
+            <button
+              onClick={() => {
+                this.opprettNedbetalingsplan();
+              }}
+            >
+              Hent nedbetalingsplan
+            </button>
+          </div>
+          {unikeÅr.length > 0 ? (
+            <NedbetalingsÅr
+              nedbetalingsplan={nedbetalingsplan}
+              unikeÅr={unikeÅr}
+            />
+          ) : (
+            ""
+          )}
         </div>
-        {unikeÅr.length > 0 ? (
-          <NedbetalingsÅr
-            nedbetalingsplan={nedbetalingsplan}
-            unikeÅr={unikeÅr}
-          />
+        {feilmelding != null ? (
+          <div className="FeilMelding">{feilmelding}</div>
         ) : (
           ""
         )}

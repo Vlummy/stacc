@@ -1,9 +1,9 @@
 import React, { Component } from "react";
 import { formaterDesimaler } from "../../utility/utilityFunctions";
 
-// Importer style
-import "./style.css";
-
+/**
+ * Rendrer en tabell over all innbetalinger det gitte året.
+ */
 class BetalingsPlan extends Component {
   render() {
     const { synligPlan } = this.props;
@@ -11,12 +11,14 @@ class BetalingsPlan extends Component {
       <div className="BetalingsPlan">
         <table>
           <thead>
-            <th>Dato</th>
-            <th>Restgjeld</th>
-            <th>Innbetaling</th>
-            <th>Gebyr</th>
-            <th>Renter</th>
-            <th>Total</th>
+            <tr>
+              <th>Dato</th>
+              <th>Restgjeld</th>
+              <th>Innbetaling</th>
+              <th>Gebyr</th>
+              <th>Renter</th>
+              <th>Total</th>
+            </tr>
           </thead>
           <tbody>
             {synligPlan.map((data, index) => {

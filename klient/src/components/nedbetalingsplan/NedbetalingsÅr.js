@@ -2,13 +2,20 @@ import React, { Component } from "react";
 import BetalingsPlan from "./BetalingsPlan";
 import { filtrerNedbetalingsplanVedÅr } from "../../utility/utilityFunctions";
 
-import "./style.css";
-
+/**
+ * Komponent for å rendre og behandle buttons for å rendre nedbetalingsplan tabeller for de
+ * alle årene.
+ *
+ * Props:
+ *    nedbetalingsplan = er hele nedbetalingsplanen som skal filtreres og rendres.
+ *    unikeÅr = alle unike år i som eksisterer i nedbetalingsplanen.
+ */
 class NedbetalingsÅr extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      synligPlan: []
+      synligPlan: [],
+      nåværendeÅr: ""
     };
   }
 
@@ -19,24 +26,35 @@ class NedbetalingsÅr extends Component {
    */
   opprettSynligPlan(år) {
     const { nedbetalingsplan } = this.props;
+    const { nåværendeÅr } = this.state;
     let synligPlan = filtrerNedbetalingsplanVedÅr(nedbetalingsplan, år);
     this.setState({
-      synligPlan: synligPlan
+      synligPlan: synligPlan,
+      nåværendeÅr: nåværendeÅr == år ? "" : år
     });
   }
 
   render() {
-    const { synligPlan } = this.state;
+    const { synligPlan, nåværendeÅr } = this.state;
     return (
       <div className="NedbetalingsÅrContainer">
         <div className="NedbetalingsÅr">
-          {this.props.unikeÅr.map(år => {
+          {this.props.unikeÅr.map((år, index) => {
             return (
-              <button onClick={() => this.opprettSynligPlan(år)}>{år}</button>
+              <button key={index} onClick={() => this.opprettSynligPlan(år)}>
+                {år}
+              </button>
             );
           })}
         </div>
-        {synligPlan.length > 0 ? <BetalingsPlan synligPlan={synligPlan} /> : ""}
+        {synligPlan.length > 0 && nåværendeÅr != "" ? (
+          <div>
+            Nedbetalingsplan året {nåværendeÅr}
+            <BetalingsPlan synligPlan={synligPlan} />
+          </div>
+        ) : (
+          ""
+        )}
       </div>
     );
   }
