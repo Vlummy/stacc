@@ -2,6 +2,9 @@
 
 Kjøre program:
 
+naviger i terminal til 'root' av prosjekt mappen.
+skriv inn kommandoene under.
+
 1. npm install
 2. cd klient
 3. npm install
